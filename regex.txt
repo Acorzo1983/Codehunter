@@ -1,0 +1,6 @@
+custom-cookie
+custom-cookies
+custom_cookie
+custom_cookies
+customcookie
+customcookies
