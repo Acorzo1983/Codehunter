@@ -1,3 +1,6 @@
+# Usage Video Demo
+https://youtu.be/dkBlcVMkgB8
+
 # URL Regex Match Counter
 
 URL Regex Match Counter is a Python script designed to count occurrences of various regular expressions within the content of provided URLs.
