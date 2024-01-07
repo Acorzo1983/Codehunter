@@ -30,7 +30,7 @@ URL Regex Match Counter is a script designed to count occurrences of various reg
 Run the `codehunter.py` script with the following arguments:
 
 ```bash
-python codehunter.py -f <file_with_URLs> -r <file_with_regex> -v -o <output_file>
+python3 codehunter.py -f <file_with_URLs> -r <file_with_regex> -v -o <output_file>
 ```
 
 -f/--file: File containing URLs to scan.
@@ -43,7 +43,7 @@ python codehunter.py -f <file_with_URLs> -r <file_with_regex> -v -o <output_file
 
 
 ```bash
-python codehunter.py -f urls.txt -r regex.txt -o results.txt
+python3 codehunter.py -f urls.txt -r regex.txt -o results.txt
 ```
 
 ### Usage - Go Version
