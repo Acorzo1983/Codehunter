@@ -33,13 +33,13 @@ Run the `codehunter.py` script with the following arguments:
 python3 codehunter.py -f <file_with_URLs> -r <file_with_regex> -v -o <output_file>
 ```
 
--f/--file: File containing URLs to scan.
+  -f/--file: File containing URLs to scan.
 
--r/--regex: File containing regular expressions to match.
+  -r/--regex: File containing regular expressions to match.
 
--o/--output: Output file to store the results.
+  -o/--output: Output file to store the results.
 
--v/--verbose: Optional flag for verbose output (displays URL results).
+  -v/--verbose: Optional flag for verbose output (displays URL results).
 
 
 ```bash
@@ -68,6 +68,35 @@ go build codehunter.go
 Simultaneously scans multiple URLs for various regex patterns.
 Provides the count of matches per URL for each regex.
 
+
+
+
+### Extra BETA urlextractor
+
+Extract URLS from a websites
+
+```bash
+sudo chmod +x urlextractor.py
+```
+
+```bash
+python3 urlextractor.py -u https://wolfteam.site -d -v -o godeepwolf.txt
+```
+
+  -u, --url <url>         URL to extract links from (required)
+  
+  -v, --verbose          Verbose mode
+  
+  -o, --output <filename> Output file name (default: output.txt)
+  
+  -d, --deep              Perform deep crawl
+
+Example usage:
+python3 urlextractor.py -u https://domain.com -d -v -o output_file.txt
+
+
+
+
 ### File Structure
 codehunter.py: Main Python script.
 
@@ -76,6 +105,8 @@ codehunter.go: Go version of the script.
 README.md: Instructions and information about the script.
 
 requirements.txt: Contains necessary Python packages.
+
+urlextractor.py complimentary Python script to extract urls
 
 Contribution
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page if you want to contribute.
