@@ -80,7 +80,7 @@ sudo chmod +x urlextractor.py
 ```
 
 ```bash
-python3 urlextractor.py -u https://wolfteam.site -d -v -o godeepwolf.txt
+python3 urlextractor.py -u https://domain.com -d -v -o domainresult.txt
 ```
 
   -u, --url <url>         URL to extract links from (required)
