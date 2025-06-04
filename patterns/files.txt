@@ -1,0 +1,325 @@
+# CodeHunter Sensitive Files Patterns
+
+# ==============================================
+# CONFIGURATION FILES
+# ==============================================
+
+# Environment files
+\.env$
+\.env\..*
+\.environment
+environment\.js
+
+# Application configs
+config\.php
+config\.json
+config\.xml
+config\.yml
+config\.yaml
+settings\.php
+settings\.json
+app\.config
+web\.config
+
+# ==============================================
+# BACKUP FILES
+# ==============================================
+
+# Common backup extensions
+\.bak$
+\.backup$
+\.old$
+\.orig$
+\.save$
+\.copy$
+
+# Database backups
+\.sql$
+\.dump$
+\.db$
+database\..*
+backup\.sql
+dump\.sql
+
+# Site backups
+backup\.zip
+backup\.tar\.gz
+site_backup\..*
+www_backup\..*
+
+# ==============================================
+# LOG FILES
+# ==============================================
+
+# Application logs
+\.log$
+error\.log
+access\.log
+debug\.log
+app\.log
+application\.log
+
+# System logs
+system\.log
+auth\.log
+kern\.log
+mail\.log
+cron\.log
+
+# ==============================================
+# DEVELOPMENT FILES
+# ==============================================
+
+# Version control
+\.git/
+\.svn/
+\.hg/
+\.bzr/
+
+# IDE/Editor files
+\.vscode/
+\.idea/
+\.project
+\.classpath
+\.settings/
+
+# Temporary files
+\.tmp$
+\.temp$
+\.swp$
+\.swo$
+*~$
+
+# ==============================================
+# SECURITY SENSITIVE
+# ==============================================
+
+# Certificate files
+\.pem$
+\.key$
+\.crt$
+\.cer$
+\.p12$
+\.pfx$
+\.jks$
+
+# SSH keys
+id_rsa$
+id_dsa$
+id_ecdsa$
+id_ed25519$
+authorized_keys$
+known_hosts$
+
+# ==============================================
+# DOCUMENTATION
+# ==============================================
+
+# API docs
+swagger\.json
+swagger\.yaml
+openapi\.json
+api-docs\.json
+postman_collection\.json
+
+# Technical docs
+README\.md
+INSTALL\.md
+CHANGELOG\.md
+NOTES\.md
+TODO\.md
+
+# ==============================================
+# PROGRAMMING LANGUAGE SPECIFIC
+# ==============================================
+
+# PHP
+\.php\.bak$
+\.php~$
+\.inc$
+\.class\.php$
+
+# Python
+\.py\.bak$
+\.pyc$
+__pycache__/
+requirements\.txt
+pip-log\.txt
+
+# Java
+\.class$
+\.jar$
+\.war$
+\.ear$
+
+# Node.js
+package\.json
+package-lock\.json
+yarn\.lock
+node_modules/
+
+# ==============================================
+# DATABASE FILES
+# ==============================================
+
+# SQLite
+\.sqlite$
+\.sqlite3$
+\.db$
+
+# Access
+\.mdb$
+\.accdb$
+
+# dBase
+\.dbf$
+
+# ==============================================
+# ARCHIVE FILES
+# ==============================================
+
+# Compressed archives
+\.zip$
+\.rar$
+\.7z$
+\.tar$
+\.tar\.gz$
+\.tgz$
+\.tar\.bz2$
+
+# Source archives
+\.zip$
+source\..*
+src\..*
+
+# ==============================================
+# CLOUD CONFIG
+# ==============================================
+
+# AWS
+\.aws/
+credentials$
+aws\.config
+
+# Docker
+Dockerfile$
+docker-compose\.yml$
+\.dockerignore$
+
+# Kubernetes
+\.kube/
+kubeconfig$
+
+# ==============================================
+# TESTING FILES
+# ==============================================
+
+# Test files
+test\..*
+tests\..*
+testing\..*
+phpunit\.xml
+jest\.config\.js
+
+# Coverage
+coverage\..*
+\.coverage$
+lcov\.info
+
+# ==============================================
+# BUILD FILES
+# ==============================================
+
+# Build artifacts
+build/
+dist/
+target/
+bin/
+obj/
+
+# Build configs
+Makefile$
+build\.xml$
+pom\.xml$
+build\.gradle$
+
+# ==============================================
+# SYSTEM FILES
+# ==============================================
+
+# Windows
+desktop\.ini$
+thumbs\.db$
+\.lnk$
+
+# macOS
+\.DS_Store$
+\.AppleDouble$
+\.LSOverride$
+
+# Linux
+\.directory$
+\.Trash-.*
+
+# ==============================================
+# WEB SERVER FILES
+# ==============================================
+
+# Apache
+\.htaccess$
+\.htpasswd$
+httpd\.conf$
+
+# Nginx
+nginx\.conf$
+\.nginx
+
+# IIS
+web\.config$
+
+# ==============================================
+# DEVELOPMENT TOOLS
+# ==============================================
+
+# Composer (PHP)
+composer\.json$
+composer\.lock$
+
+# npm (Node.js)
+package\.json$
+package-lock\.json$
+
+# Pip (Python)
+requirements\.txt$
+Pipfile$
+
+# Gradle (Java)
+build\.gradle$
+gradle\.properties$
+
+# Maven (Java)
+pom\.xml$
+
+# ==============================================
+# SPECIFIC APPLICATIONS
+# ==============================================
+
+# WordPress
+wp-config\.php$
+wp-config\.php\.bak$
+
+# Drupal
+settings\.php$
+settings\.local\.php$
+
+# Joomla
+configuration\.php$
+
+# Laravel
+\.env$
+\.env\.example$
+artisan$
+
+# Django
+settings\.py$
+local_settings\.py$

@@ -1,0 +1,207 @@
+# CodeHunter Admin Panels Patterns
+
+# ==============================================
+# GENERIC ADMIN AREAS
+# ==============================================
+
+# Common admin paths
+/admin/?
+/admin/.*
+/administrator/?
+/admin-panel/?
+/adminpanel/?
+/admin_panel/?
+
+# Management interfaces
+/manage/?
+/management/?
+/manager/?
+/control/?
+/controlpanel/?
+
+# ==============================================
+# CMS ADMIN PANELS
+# ==============================================
+
+# WordPress
+/wp-admin/?
+/wp-admin/.*
+/wp-login\.php
+/wp-content/
+/wp-includes/
+
+# Drupal
+/admin/?
+/user/?
+/user/login
+/admin/config
+/admin/structure
+
+# Joomla
+/administrator/?
+/admin/?
+/administration/?
+
+# ==============================================
+# DATABASE ADMIN TOOLS
+# ==============================================
+
+# phpMyAdmin
+/phpmyadmin/?
+/phpmyadmin/.*
+/pma/?
+/phpMyAdmin/?
+/mysql/?
+
+# Adminer
+/adminer/?
+/adminer\.php
+/admin\.php
+
+# PostgreSQL
+/pgadmin/?
+/phppgadmin/?
+
+# ==============================================
+# SERVER ADMIN PANELS
+# ==============================================
+
+# cPanel/WHM
+/cpanel/?
+/whm/?
+/webmail/?
+/mail/?
+
+# Plesk
+/plesk/?
+/admin/plesk/
+
+# DirectAdmin
+/directadmin/?
+
+# ==============================================
+# FRAMEWORK ADMIN
+# ==============================================
+
+# Django
+/admin/?
+/django-admin/?
+
+# Rails
+/admin/?
+/rails/admin/?
+
+# Laravel
+/admin/?
+/horizon/?
+
+# ==============================================
+# DEVELOPMENT TOOLS
+# ==============================================
+
+# IDE/Editor access
+/ide/?
+/editor/?
+/phpmyadmin/?
+/notebook/?
+
+# Git interfaces
+/git/?
+/gitlab/?
+/gitea/?
+
+# ==============================================
+# MONITORING & ANALYTICS
+# ==============================================
+
+# Server monitoring
+/status/?
+/health/?
+/stats/?
+/statistics/?
+/metrics/?
+
+# Analytics
+/analytics/?
+/report/?
+/reports/?
+/dashboard/?
+
+# ==============================================
+# BACKUP & MAINTENANCE
+# ==============================================
+
+# Backup systems
+/backup/?
+/backups/?
+/dump/?
+/export/?
+
+# Maintenance
+/maintenance/?
+/maint/?
+/service/?
+
+# ==============================================
+# CONFIGURATION
+# ==============================================
+
+# Config panels
+/config/?
+/configuration/?
+/settings/?
+/preferences/?
+
+# System config
+/system/?
+/sysadmin/?
+/setup/?
+
+# ==============================================
+# USER MANAGEMENT
+# ==============================================
+
+# User admin
+/users/?
+/user-admin/?
+/accounts/?
+/members/?
+
+# Roles & permissions
+/roles/?
+/permissions/?
+/access/?
+
+# ==============================================
+# FINANCIAL/PAYMENT ADMIN
+# ==============================================
+
+# Payment processing
+/payment/?
+/payments/?
+/billing/?
+/invoice/?
+
+# E-commerce admin
+/shop-admin/?
+/store-admin/?
+/commerce/?
+
+# ==============================================
+# SPECIFIC APPLICATIONS
+# ==============================================
+
+# Webmin
+/webmin/?
+
+# Cockpit
+/cockpit/?
+
+# Portainer
+/portainer/?
+
+# Jenkins
+/jenkins/?
+
+# Grafana
+/grafana/?

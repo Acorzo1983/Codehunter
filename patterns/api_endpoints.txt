@@ -1,0 +1,158 @@
+# CodeHunter API Endpoints Patterns
+
+# ==============================================
+# REST API ENDPOINTS
+# ==============================================
+
+# Versioned APIs
+/api/v[0-9]+/
+/api/v[0-9]+\.[0-9]+/
+/rest/v[0-9]+/
+/restapi/v[0-9]+/
+
+# Generic API paths
+/api/
+/rest/
+/restapi/
+/webservice/
+/service/
+/services/
+
+# ==============================================
+# GRAPHQL & MODERN APIs
+# ==============================================
+
+# GraphQL
+/graphql/?
+/graphiql/?
+/playground/?
+/graph/?
+
+# JSON-RPC
+/jsonrpc/?
+/rpc/?
+/api/rpc/
+
+# ==============================================
+# COMMON API RESOURCES
+# ==============================================
+
+# User management
+/api/users/?
+/api/user/[0-9]+/?
+/api/profile/?
+/api/account/?
+/api/accounts/?
+
+# Authentication
+/api/auth/?
+/api/login/?
+/api/logout/?
+/api/token/?
+/api/refresh/?
+/api/oauth/?
+
+# CRUD operations
+/api/create/?
+/api/read/?
+/api/update/?
+/api/delete/?
+
+# ==============================================
+# DATA FORMATS
+# ==============================================
+
+# JSON endpoints
+\.json$
+\.json\?
+/json/?
+_json$
+
+# XML endpoints
+\.xml$
+\.xml\?
+/xml/?
+_xml$
+
+# CSV endpoints
+\.csv$
+\.csv\?
+/csv/?
+_csv$
+
+# ==============================================
+# INTERNAL APIs
+# ==============================================
+
+# Internal paths
+/internal/api/
+/private/api/
+/admin/api/
+/staff/api/
+/dev/api/
+
+# Debug endpoints
+/api/debug/?
+/api/test/?
+/api/ping/?
+/api/health/?
+/api/status/?
+
+# ==============================================
+# MICROSERVICES
+# ==============================================
+
+# Service patterns
+/service/[a-z-]+/api/
+/[a-z-]+-service/
+/ms-[a-z-]+/
+/microservice/
+
+# ==============================================
+# WEBHOOKS
+# ==============================================
+
+# Webhook endpoints
+/webhook/?
+/webhooks/?
+/api/webhook/?
+/callback/?
+/notify/?
+
+# ==============================================
+# FILE & MEDIA APIs
+# ==============================================
+
+# File operations
+/api/upload/?
+/api/download/?
+/api/file/?
+/api/files/?
+/api/media/?
+
+# ==============================================
+# SEARCH & QUERY
+# ==============================================
+
+# Search endpoints
+/api/search/?
+/api/query/?
+/api/find/?
+/search\.json
+/query\.json
+
+# ==============================================
+# SPECIFIC PATTERNS
+# ==============================================
+
+# WordPress API
+/wp-json/
+/wp-json/wp/v2/
+
+# Drupal API
+/jsonapi/
+/hal/
+
+# Laravel API
+/api/[a-z-]+\?
+/api/[a-z-]+/[0-9]+

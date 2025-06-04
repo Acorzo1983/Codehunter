@@ -1,0 +1,221 @@
+# CodeHunter Example URLs
+# Safe test URLs for pattern validation
+# Made with ❤️ by Albert.C @yz9yt
+
+# ==============================================
+# SAFE TESTING URLS
+# ==============================================
+# These URLs are safe for testing and demonstration
+# They contain patterns but no real sensitive data
+
+# ==============================================
+# API ENDPOINT EXAMPLES
+# ==============================================
+
+# REST API endpoints
+https://httpbin.org/get
+https://jsonplaceholder.typicode.com/users
+https://httpbin.org/post
+https://reqres.in/api/users
+https://httpbin.org/put
+https://httpbin.org/delete
+https://api.github.com/users
+https://httpbin.org/status/200
+
+# JSON endpoints
+https://httpbin.org/json
+https://jsonplaceholder.typicode.com/posts.json
+https://httpbin.org/response-headers
+
+# GraphQL endpoints
+https://httpbin.org/anything/graphql
+https://httpbin.org/anything/graph
+
+# ==============================================
+# DEVELOPMENT & TESTING
+# ==============================================
+
+# Development endpoints
+https://httpbin.org/anything/dev/api/v1
+https://httpbin.org/anything/internal/api
+https://httpbin.org/anything/staging/api
+https://httpbin.org/anything/test/api
+
+# Debug endpoints
+https://httpbin.org/anything/api/debug
+https://httpbin.org/anything/api/health
+https://httpbin.org/anything/api/status
+
+# ==============================================
+# ADMIN PANEL SIMULATION
+# ==============================================
+
+# Admin-like paths (safe simulation)
+https://httpbin.org/anything/admin
+https://httpbin.org/anything/administrator
+https://httpbin.org/anything/wp-admin
+https://httpbin.org/anything/management
+https://httpbin.org/anything/control
+
+# ==============================================
+# FILE EXTENSIONS FOR TESTING
+# ==============================================
+
+# Configuration-like files
+https://httpbin.org/anything/config.json
+https://httpbin.org/anything/settings.xml
+https://httpbin.org/anything/app.config
+
+# JavaScript files
+https://httpbin.org/anything/app.js
+https://httpbin.org/anything/config.js
+https://httpbin.org/anything/main.js
+
+# Backup-like files
+https://httpbin.org/anything/backup.sql
+https://httpbin.org/anything/dump.db
+https://httpbin.org/anything/site.bak
+
+# ==============================================
+# RESPONSE VARIATIONS
+# ==============================================
+
+# Different response codes
+https://httpbin.org/status/200
+https://httpbin.org/status/301
+https://httpbin.org/status/302
+https://httpbin.org/status/404
+https://httpbin.org/status/401
+https://httpbin.org/status/403
+https://httpbin.org/status/500
+
+# ==============================================
+# CONTENT TYPE TESTING
+# ==============================================
+
+# HTML responses
+https://httpbin.org/html
+https://httpbin.org/robots.txt
+
+# XML responses
+https://httpbin.org/xml
+
+# Base64 responses
+https://httpbin.org/base64/SFRUUEJJTiBpcyBhd2Vzb21l
+
+# ==============================================
+# HEADERS & AUTH TESTING
+# ==============================================
+
+# Bearer token simulation
+https://httpbin.org/bearer
+
+# Basic auth simulation
+https://httpbin.org/basic-auth/user/passwd
+
+# Hidden endpoints
+https://httpbin.org/hidden-basic-auth/user/passwd
+
+# ==============================================
+# REQUEST/RESPONSE TESTING
+# ==============================================
+
+# Echo requests
+https://httpbin.org/anything
+https://httpbin.org/anything/echo
+https://httpbin.org/anything/mirror
+
+# User agent testing
+https://httpbin.org/user-agent
+
+# IP testing
+https://httpbin.org/ip
+
+# ==============================================
+# CACHE & COMPRESSION
+# ==============================================
+
+# Cache testing
+https://httpbin.org/cache
+https://httpbin.org/cache/60
+
+# Compression testing
+https://httpbin.org/gzip
+https://httpbin.org/deflate
+https://httpbin.org/brotli
+
+# ==============================================
+# COOKIES & SESSION
+# ==============================================
+
+# Cookie testing
+https://httpbin.org/cookies
+https://httpbin.org/cookies/set
+https://httpbin.org/cookies/delete
+
+# ==============================================
+# REDIRECTS
+# ==============================================
+
+# Redirect testing
+https://httpbin.org/redirect/1
+https://httpbin.org/redirect/3
+https://httpbin.org/redirect-to?url=https://httpbin.org/get
+https://httpbin.org/absolute-redirect/3
+https://httpbin.org/relative-redirect/3
+
+# ==============================================
+# STREAMING & DELAYS
+# ==============================================
+
+# Stream testing
+https://httpbin.org/stream/10
+https://httpbin.org/stream-bytes/1024
+
+# Delay testing
+https://httpbin.org/delay/1
+https://httpbin.org/delay/2
+
+# ==============================================
+# WEBSOCKET SIMULATION
+# ==============================================
+
+# WebSocket-like endpoints
+https://httpbin.org/anything/ws
+https://httpbin.org/anything/websocket
+
+# ==============================================
+# NOTES FOR USAGE
+# ==============================================
+
+# Usage Examples:
+# 
+# Test all patterns:
+# codehunter -r secrets.txt -l examples/urls.txt -v
+#
+# Test API patterns:
+# codehunter -r api_endpoints.txt -l examples/urls.txt -v
+#
+# Test admin patterns:
+# codehunter -r admin_panels.txt -l examples/urls.txt -v
+#
+# Test file patterns:
+# codehunter -r files.txt -l examples/urls.txt -v
+#
+# Test JavaScript patterns:
+# codehunter -r js_secrets.txt -l examples/urls.txt -v
+#
+# Test custom patterns:
+# codehunter -r custom.txt -l examples/urls.txt -v
+
+# ==============================================
+# SAFETY NOTES
+# ==============================================
+#
+# ✅ All URLs point to httpbin.org (safe testing service)
+# ✅ No real sensitive data or credentials
+# ✅ Perfect for development and testing
+# ✅ Free to use for educational purposes
+# ✅ No rate limiting concerns for testing
+#
+# Happy testing! 🎯
