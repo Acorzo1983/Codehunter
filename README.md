@@ -28,7 +28,7 @@ Perfect integration with Kali Linux, Parrot OS, and popular Bug Bounty tools lik
 ### One-Line Installer
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/Acorzo1983/Codehunter/main/installer.sh | bash
+git clone https://github.com/Acorzo1983/Codehunter.git && cd Codehunter && chmod +x installer.sh && ./installer.sh
 ```
 
 ### Manual Installation
