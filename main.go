@@ -18,8 +18,8 @@ import (
 // VERSION & BUILD INFO
 // ==============================================
 var (
-	VERSION    = "2.5.2" // Incremented version for new features
-	BUILD_DATE = "2024"  // Esto podría actualizarse dinámicamente en un build real
+	VERSION    = "2.5.4" // Incremented version for help text update
+	BUILD_DATE = "2024"
 	AUTHOR     = "Albert.C"
 	TWITTER    = "@yz9yt"
 	GITHUB     = "https://github.com/Acorzo1983/Codehunter"
@@ -30,7 +30,7 @@ var (
 // ==============================================
 const BANNER = `
 ╔══════════════════════════════════════════════════════════════╗
-║                     🏴‍☠️ CodeHunter v2.5.2                    ║
+║                     🏴‍☠️ CodeHunter v2.5.4                    ║
 ║              Ultra-Fast Bug Bounty Scanner                  ║
 ║                                                              ║
 ║    ┌─────────────────────────────────────────────────────┐   ║
@@ -51,12 +51,21 @@ const BANNER = `
 type Config struct {
 	PatternsFile     string
 	UrlsFile         string
-	OutputFile       string // Legacy -o, could be for found URLs if new flags aren't used
+	OutputFile       string
 	Threads          int
 	Verbose          bool
 	ShowBanner       bool
-	LogFile          string // New: for the detailed log file
-	FoundUrlsLogFile string // New: for clean list of found URLs
+	LogFile          string
+	FoundUrlsLogFile string
+}
+
+// ==============================================
+// PATTERN INFO STRUCTURE
+// ==============================================
+type PatternInfo struct {
+	RegexStr   string 
+	Compiled   *regexp.Regexp
+	SourceFile string 
 }
 
 // ==============================================
@@ -64,11 +73,12 @@ type Config struct {
 // ==============================================
 type Scanner struct {
 	Config        Config
-	Patterns      []*regexp.Regexp
+	Patterns      []PatternInfo 
 	Stats         ScanStats
-	mu            sync.Mutex
-	foundFile     *os.File // File handle for found URLs
-	logDetailFile *os.File // File handle for detailed log
+	mu            sync.Mutex   
+	logFileMutex  sync.Mutex   
+	foundFile     *os.File
+	logDetailFile *os.File
 }
 
 type ScanStats struct {
@@ -94,7 +104,7 @@ const (
 )
 
 // ==============================================
-// MAIN FUNCTION
+// MAIN FUNCTION (sin cambios respecto a la 2.5.3)
 // ==============================================
 func main() {
 	config := parseFlags()
@@ -113,80 +123,78 @@ func main() {
 			StartTime: time.Now(),
 		},
 	}
-	defer scanner.CloseFiles() // Ensure files are closed at the end
+	defer scanner.CloseFiles()
 
-	// Setup output files first
 	if err := scanner.setupOutputFiles(); err != nil {
 		fmt.Printf("%s[ERROR]%s Setting up output files: %v\n", ColorRed, ColorReset, err)
 		os.Exit(1)
 	}
 
 	if err := scanner.loadPatterns(); err != nil {
-		scanner.logDetailMessage(fmt.Sprintf("%s[ERROR]%s Failed to load patterns: %v\n", ColorRed, ColorReset, err))
+		scanner.logDetailMessage(fmt.Sprintf("%s[ERROR]%s Failed to load patterns: %v\n", ColorRed, ColorReset, err), true)
 		os.Exit(1)
 	}
 
 	if config.Verbose {
 		scanner.logDetailMessage(fmt.Sprintf("%s[INFO]%s Loaded %d patterns. Initial source: %s\n",
-			ColorCyan, ColorReset, scanner.Stats.PatternsCount, config.PatternsFile))
+			ColorCyan, ColorReset, scanner.Stats.PatternsCount, config.PatternsFile), true)
 	}
 
 	var input io.Reader
 	if config.UrlsFile != "" {
 		file, err := os.Open(config.UrlsFile)
 		if err != nil {
-			scanner.logDetailMessage(fmt.Sprintf("%s[ERROR]%s Cannot open URLs file: %v\n", ColorRed, ColorReset, err))
+			scanner.logDetailMessage(fmt.Sprintf("%s[ERROR]%s Cannot open URLs file: %v\n", ColorRed, ColorReset, err), true)
 			os.Exit(1)
 		}
 		defer file.Close()
 		input = file
 		if config.Verbose {
-			scanner.logDetailMessage(fmt.Sprintf("%s[INFO]%s Reading URLs from: %s\n", ColorCyan, ColorReset, config.UrlsFile))
+			scanner.logDetailMessage(fmt.Sprintf("%s[INFO]%s Reading URLs from: %s\n", ColorCyan, ColorReset, config.UrlsFile), true)
 		}
 	} else {
 		input = os.Stdin
 		if config.Verbose {
-			scanner.logDetailMessage(fmt.Sprintf("%s[INFO]%s Reading URLs from stdin (pipe mode)\n", ColorCyan, ColorReset))
+			scanner.logDetailMessage(fmt.Sprintf("%s[INFO]%s Reading URLs from stdin (pipe mode)\n", ColorCyan, ColorReset), true)
 		}
 	}
 
 	scanner.scan(input)
-	scanner.showFinalStats() // This will now also write to logDetailFile if configured
+	scanner.showFinalStats()
 
-	// Inform user about created files
 	if scanner.Config.FoundUrlsLogFile != "" {
 		fmt.Printf("%s[INFO]%s Matched URLs saved to: %s\n", ColorGreen, ColorReset, scanner.Config.FoundUrlsLogFile)
 	}
 	if scanner.Config.LogFile != "" {
-		fmt.Printf("%s[INFO]%s Detailed scan log saved to: %s\n", ColorGreen, ColorReset, scanner.Config.LogFile)
+		fmt.Printf("%s[INFO]%s Detailed scan log (with matched patterns) saved to: %s\n", ColorGreen, ColorReset, scanner.Config.LogFile)
 	}
 }
 
-// Helper to setup output files for the Scanner
+// ==============================================
+// HELPER FUNCTIONS (sin cambios respecto a la 2.5.3)
+// ==============================================
 func (s *Scanner) setupOutputFiles() error {
 	if s.Config.FoundUrlsLogFile != "" {
 		file, err := os.Create(s.Config.FoundUrlsLogFile)
 		if err != nil {
 			return fmt.Errorf("creating found URLs file '%s': %w", s.Config.FoundUrlsLogFile, err)
 		}
-		s.foundFile = file // Store the file handle
+		s.foundFile = file
 	}
 
 	if s.Config.LogFile != "" {
 		file, err := os.Create(s.Config.LogFile)
 		if err != nil {
-			// If foundFile was created, close it before erroring
 			if s.foundFile != nil {
 				s.foundFile.Close()
 			}
 			return fmt.Errorf("creating detailed log file '%s': %w", s.Config.LogFile, err)
 		}
-		s.logDetailFile = file // Store the file handle
+		s.logDetailFile = file
 	}
 	return nil
 }
 
-// Helper to close files, to be deferred
 func (s *Scanner) CloseFiles() {
 	if s.foundFile != nil {
 		s.foundFile.Close()
@@ -196,20 +204,19 @@ func (s *Scanner) CloseFiles() {
 	}
 }
 
-// Helper to log messages to detailed log file or stdout
-func (s *Scanner) logDetailMessage(message string) {
+func (s *Scanner) logDetailMessage(message string, forceToStdoutIfNotLogging bool) {
 	if s.logDetailFile != nil {
 		fmt.Fprint(s.logDetailFile, message)
-	} else {
-		// If no detail log file, print to stdout only if verbose or it's an error
-		if s.Config.Verbose || strings.Contains(message, "[ERROR]") || strings.Contains(message, "[WARN]") {
+	}
+	if s.logDetailFile == nil {
+		if forceToStdoutIfNotLogging || s.Config.Verbose || strings.Contains(message, "[ERROR]") || strings.Contains(message, "[WARN]") {
 			fmt.Print(message)
 		}
 	}
 }
 
 // ==============================================
-// COMMAND LINE FLAG PARSING
+// COMMAND LINE FLAG PARSING (Modificado el Usage)
 // ==============================================
 func parseFlags() Config {
 	config := Config{
@@ -219,7 +226,7 @@ func parseFlags() Config {
 	}
 
 	flag.Usage = func() {
-		if config.ShowBanner { // Show banner if not suppressed
+		if config.ShowBanner {
 			fmt.Println(BANNER)
 		}
 		fmt.Printf("\n%s🎯 CodeHunter v%s - Ultra-Fast Bug Bounty Scanner%s\n", ColorBold, VERSION, ColorReset)
@@ -227,32 +234,30 @@ func parseFlags() Config {
 
 		fmt.Printf("%s📋 Usage:%s\n", ColorYellow, ColorReset)
 		fmt.Println("  codehunter -r patterns.txt -l urls.txt --found-urls found.txt --log-file scan.log")
-		fmt.Println("  echo \"http://httpbin.org/get?api_key=TEST1234567890123456\" | codehunter -r secrets.txt -v")
 		fmt.Println()
 
-		fmt.Printf("%s💡 Test Example (should find a match):%s\n", ColorYellow, ColorReset)
-		fmt.Println("  echo \"https://example.com/api/v1/users\" | codehunter -r api_endpoints.txt --found-urls test_hits.txt")
-		fmt.Println("  echo \"http://test.com/config.js?token=abcdef1234567890\" | codehunter -r js_secrets.txt -v")
+		fmt.Printf("%s💡 Test Examples (should find matches and log patterns):%s\n", ColorYellow, ColorReset)
+		fmt.Println("  echo \"https://example.com/api/v1/users\" | codehunter -r api_endpoints.txt --found-urls hits.txt --log-file detailed.log")
+		fmt.Println("  echo \"http://test.com/config.js?token=abcdef1234567890\" | codehunter -r js_secrets.txt -v --log-file detailed_verbose.log")
 		fmt.Println()
-
-		fmt.Printf("%s💡 More Examples:%s\n", ColorYellow, ColorReset)
-		fmt.Println("  katana -u tesla.com | codehunter -r secrets.txt,api_endpoints.txt --found-urls tesla_found.txt")
+        
+		fmt.Printf("%s💡 Full Workflow Example with Katana:%s\n", ColorYellow, ColorReset)
+		fmt.Println("  katana -u http://testhtml5.vulnweb.com/ | codehunter -r /usr/share/codehunter/patterns/secrets.txt,/usr/share/codehunter/patterns/api_endpoints.txt --found-urls k_found.txt --log-file k_log.txt")
 		fmt.Println()
 
 		fmt.Printf("%s🔧 Flags:%s\n", ColorYellow, ColorReset)
 		flag.PrintDefaults()
 		fmt.Println()
-
-		// ... (rest of the usage message like available patterns, installation, support) ...
-		fmt.Printf("%s📋 Available Patterns (default location: patterns/ or /usr/share/codehunter/patterns/):%s\n", ColorYellow, ColorReset) //
-		fmt.Println("  • secrets.txt      - API keys, tokens, credentials")                                                                    //
-		fmt.Println("  • api_endpoints.txt - REST APIs, GraphQL, endpoints")                                                                   //
-		fmt.Println("  • admin_panels.txt  - Admin areas, CMS panels")                                                                         //
-		fmt.Println("  • js_secrets.txt   - JavaScript secrets, configs")                                                                      //
-		fmt.Println("  • files.txt        - Sensitive files, backups")                                                                         //
-		fmt.Println("  • custom.txt       - Your custom patterns")                                                                             //
+		
+		fmt.Printf("%s📋 Available Patterns (default location: patterns/ or /usr/share/codehunter/patterns/):%s\n", ColorYellow, ColorReset)
+		fmt.Println("  • secrets.txt      - API keys, tokens, credentials")
+		fmt.Println("  • api_endpoints.txt - REST APIs, GraphQL, endpoints")
+		fmt.Println("  • admin_panels.txt  - Admin areas, CMS panels")
+		fmt.Println("  • js_secrets.txt   - JavaScript secrets, configs")
+		fmt.Println("  • files.txt        - Sensitive files, backups")
+		fmt.Println("  • custom.txt       - Your custom patterns")
 		fmt.Println()
-
+		
 		fmt.Printf("%s🏴‍☠️ Happy Bug Hunting! 🏴‍☠️%s\n", ColorBold, ColorReset)
 	}
 
@@ -262,7 +267,7 @@ func parseFlags() Config {
 	flag.IntVar(&config.Threads, "t", 10, "Number of threads")
 	flag.BoolVar(&config.Verbose, "v", false, "Verbose output (logs progress to stdout/--log-file)")
 	flag.BoolVar(&config.ShowBanner, "b", true, "Show banner (default: true, set to false with -b=false)")
-	flag.StringVar(&config.LogFile, "log-file", "", "File to write detailed scan log (optional)")
+	flag.StringVar(&config.LogFile, "log-file", "", "File to write detailed scan log (includes matched patterns)")
 	flag.StringVar(&config.FoundUrlsLogFile, "found-urls", "", "File to write clean list of matched URLs (optional)")
 
 	flag.Parse()
@@ -273,23 +278,21 @@ func parseFlags() Config {
 		flag.Usage()
 		os.Exit(1)
 	}
-    // If -o is used and --found-urls is not, make --found-urls same as -o for backward compatibility or preference
 	if config.OutputFile != "" && config.FoundUrlsLogFile == "" {
 		config.FoundUrlsLogFile = config.OutputFile
 	}
-
 
 	return config
 }
 
 // ==============================================
-// PATTERN LOADING
+// PATTERN LOADING (sin cambios respecto a la 2.5.3)
 // ==============================================
 func (s *Scanner) loadPatterns() error {
 	patternFileSources := strings.Split(s.Config.PatternsFile, ",")
-	var loadedPatterns []*regexp.Regexp
+	var loadedPatterns []PatternInfo 
 	var filesSuccessfullyProcessed int
-	var patternLoadingLog strings.Builder // To accumulate log messages for patterns
+	var patternLoadingLog strings.Builder
 
 	for _, sourceName := range patternFileSources {
 		sourceName = strings.TrimSpace(sourceName)
@@ -322,7 +325,9 @@ func (s *Scanner) loadPatterns() error {
 			patternLoadingLog.WriteString(msg)
 			continue
 		}
-		
+
+		baseSourceName := filepath.Base(usedPath) 
+
 		if s.Config.Verbose {
 			msg := fmt.Sprintf("%s[INFO]%s Loading patterns from: %s\n", ColorCyan, ColorReset, usedPath)
 			patternLoadingLog.WriteString(msg)
@@ -338,30 +343,34 @@ func (s *Scanner) loadPatterns() error {
 			if line == "" || strings.HasPrefix(line, "#") {
 				continue
 			}
-			pattern, errRegex := regexp.Compile(line)
+			compiledPattern, errRegex := regexp.Compile(line) 
 			if errRegex != nil {
-				msg := fmt.Sprintf("%s[WARN]%s Invalid regex at line %d in %s: %s. Skipping pattern.\n",
-					ColorYellow, ColorReset, lineNum, usedPath, errRegex)
+				msg := fmt.Sprintf("%s[WARN]%s Invalid regex at line %d in %s ('%s'): %s. Skipping pattern.\n",
+					ColorYellow, ColorReset, lineNum, usedPath, line, errRegex)
 				patternLoadingLog.WriteString(msg)
 				continue
 			}
-			loadedPatterns = append(loadedPatterns, pattern)
+			loadedPatterns = append(loadedPatterns, PatternInfo{
+				RegexStr:   line, 
+				Compiled:   compiledPattern,
+				SourceFile: baseSourceName,
+			})
 			patternsInThisFile++
 		}
-		
+
 		if errScan := fileScanner.Err(); errScan != nil {
 			msg := fmt.Sprintf("%s[WARN]%s Error reading file %s: %v. Patterns loaded may be incomplete.\n",
 				ColorYellow, ColorReset, usedPath, errScan)
 			patternLoadingLog.WriteString(msg)
 		}
-		file.Close() // Close file after processing it
+		file.Close()
 
 		if patternsInThisFile > 0 {
 			filesSuccessfullyProcessed++
 		}
 	}
-    
-	s.logDetailMessage(patternLoadingLog.String()) // Log all pattern loading messages
+	s.logDetailMessage(patternLoadingLog.String(), true)
+
 
 	s.Patterns = loadedPatterns
 	s.Stats.PatternsCount = len(loadedPatterns)
@@ -372,22 +381,21 @@ func (s *Scanner) loadPatterns() error {
 
 	if filesSuccessfullyProcessed < len(patternFileSources) && len(patternFileSources) > 1 {
 		s.logDetailMessage(fmt.Sprintf("%s[INFO]%s Successfully processed patterns from %d out of %d specified source(s).\n",
-			ColorCyan, ColorReset, filesSuccessfullyProcessed, len(patternFileSources)))
+			ColorCyan, ColorReset, filesSuccessfullyProcessed, len(patternFileSources)), true)
 	}
 	return nil
 }
 
 // ==============================================
-// MAIN SCANNING LOGIC
+// MAIN SCANNING LOGIC (sin cambios respecto a la 2.5.3)
 // ==============================================
 func (s *Scanner) scan(input io.Reader) {
 	urlChan := make(chan string, s.Config.Threads*2)
-	resultChan := make(chan string, s.Config.Threads*2) // This channel now only carries URLs to be written to foundFile
+	resultChan := make(chan string, s.Config.Threads*2)
 
 	var readerWg, writerWg, workerWg sync.WaitGroup
 
-	// Start result writer goroutine (for found URLs file)
-	if s.foundFile != nil { // Only start writer if foundFile is configured
+	if s.foundFile != nil {
 		writerWg.Add(1)
 		go func() {
 			defer writerWg.Done()
@@ -395,12 +403,7 @@ func (s *Scanner) scan(input io.Reader) {
 				fmt.Fprintln(s.foundFile, resultURL)
 			}
 		}()
-	} else { // If no foundFile, results will be printed to stdout by processURL if verbose
-        // To prevent deadlock if resultChan is never read from, we need to drain it.
-        // Or, ensure processURL doesn't write to resultChan if s.foundFile is nil.
-        // For simplicity now, let's make processURL aware.
-    }
-
+	}
 
 	for i := 0; i < s.Config.Threads; i++ {
 		workerWg.Add(1)
@@ -424,70 +427,75 @@ func (s *Scanner) scan(input io.Reader) {
 			}
 		}
 		if err := scanner.Err(); err != nil {
-			s.logDetailMessage(fmt.Sprintf("%s[ERROR]%s Error reading URLs: %v\n", ColorRed, ColorReset, err))
+			s.logDetailMessage(fmt.Sprintf("%s[ERROR]%s Error reading URLs: %v\n", ColorRed, ColorReset, err), true)
 		}
 	}()
 
 	readerWg.Wait()
 	workerWg.Wait()
-	
-    close(resultChan) // Close resultChan after all workers are done.
-	if s.foundFile != nil {
-		writerWg.Wait() // Wait for writer only if it was started
-	}
 
+	close(resultChan)
+	if s.foundFile != nil {
+		writerWg.Wait()
+	}
 
 	s.Stats.EndTime = time.Now()
 }
 
 // ==============================================
-// URL PROCESSING
+// URL PROCESSING (sin cambios respecto a la 2.5.3)
 // ==============================================
 func (s *Scanner) processURL(url string, resultChan chan<- string, workerID int) {
-	s.mu.Lock()
+	s.mu.Lock() 
 	s.Stats.URLsProcessed++
 	currentProcessed := s.Stats.URLsProcessed
 	s.mu.Unlock()
 
 	if s.Config.Verbose && currentProcessed%100 == 0 {
 		s.logDetailMessage(fmt.Sprintf("%s[PROGRESS]%s Processed %d URLs (Worker %d)\n",
-			ColorBlue, ColorReset, currentProcessed, workerID))
+			ColorBlue, ColorReset, currentProcessed, workerID), false)
 	}
 
+	var firstMatchedPattern PatternInfo
 	matched := false
-	for _, pattern := range s.Patterns {
-		if pattern.MatchString(url) {
+
+	for _, pInfo := range s.Patterns { 
+		if pInfo.Compiled.MatchString(url) {
+			firstMatchedPattern = pInfo 
 			matched = true
-			break
+			break 
 		}
 	}
 
 	if matched {
-		s.mu.Lock()
+		s.mu.Lock() 
 		s.Stats.URLsMatched++
 		s.mu.Unlock()
 
-		if s.Config.Verbose { // Verbose always logs to detail/stdout
-			s.logDetailMessage(fmt.Sprintf("%s[MATCH]%s %s\n", ColorGreen, ColorReset, url))
+		if s.logDetailFile != nil {
+			s.logFileMutex.Lock() 
+			fmt.Fprintf(s.logDetailFile, "URL: %s\n  MATCHED_PATTERN: %s (From: %s)\n---\n", url, firstMatchedPattern.RegexStr, firstMatchedPattern.SourceFile)
+			s.logFileMutex.Unlock()
 		}
-        
-        if s.foundFile != nil { // If foundFile is configured, send to its channel
-            resultChan <- url
-        } else if !s.Config.Verbose { 
-            // If no foundFile AND not verbose, print matched URL to stdout so user sees it
-            // This maintains previous behavior of -o or stdout for matches
-            fmt.Println(url)
-        }
+
+		if s.Config.Verbose {
+			s.logDetailMessage(fmt.Sprintf("%s[MATCH]%s %s (Pattern: %s)\n",
+				ColorGreen, ColorReset, url, firstMatchedPattern.RegexStr), false)
+		}
+
+		if s.foundFile != nil {
+			resultChan <- url
+		} else if !s.Config.Verbose {
+			fmt.Println(url)
+		}
 	}
 }
 
 // ==============================================
-// STATISTICS DISPLAY
+// STATISTICS DISPLAY (sin cambios respecto a la 2.5.3)
 // ==============================================
 func (s *Scanner) showFinalStats() {
-	// Prepare the statistics string using a builder
 	var statsBuilder strings.Builder
-
 	duration := s.Stats.EndTime.Sub(s.Stats.StartTime)
 	speed := 0.0
 	if duration.Seconds() > 0 {
@@ -516,7 +524,7 @@ func (s *Scanner) showFinalStats() {
 	} else if s.Stats.URLsMatched < 10 && s.Stats.URLsMatched > 0 {
 		matchStatus = "Low match rate"
 		matchColor = ColorYellow
-	} else {
+	} else { 
 		matchStatus = "Good match rate"
 		matchColor = ColorGreen
 	}
@@ -524,18 +532,15 @@ func (s *Scanner) showFinalStats() {
 		ColorPurple, ColorReset, matchColor, matchStatus, ColorReset, ColorPurple, ColorReset))
 	statsBuilder.WriteString(fmt.Sprintf("%s╚══════════════════════════════════════════════════════════╝%s\n", ColorPurple, ColorReset))
 
-	// Tips
 	if s.Stats.URLsMatched == 0 {
 		statsBuilder.WriteString(fmt.Sprintf("\n%s💡 Tips for better results:%s\n", ColorYellow, ColorReset))
 		statsBuilder.WriteString("  • Try different pattern files or combine them (e.g., -r secrets.txt,api_endpoints.txt)\n")
 		statsBuilder.WriteString("  • Ensure your input URLs actually contain data that patterns might match.\n")
-		statsBuilder.WriteString("  • Use -v for verbose progress, or --log-file for a persistent log.\n")
+		statsBuilder.WriteString("  • Use -v for verbose progress, or --log-file for a persistent log with matched patterns.\n")
 		statsBuilder.WriteString("  • Verify pattern file syntax and regex validity.\n")
 	} else {
 		statsBuilder.WriteString(fmt.Sprintf("\n%s🎉 Great! Found potential targets.%s\n", ColorGreen, ColorReset))
-		if s.Config.FoundUrlsLogFile != "" { // If found URLs were saved to a file
-			// This message is now printed at the end of main()
-		} else { // If matches were printed to stdout
+		if s.Config.FoundUrlsLogFile == "" && !s.Config.Verbose { 
 			statsBuilder.WriteString("  🔍 Review matched URLs printed above or use --found-urls <file> to save them.\n")
 		}
 		statsBuilder.WriteString("  🛡️ Follow responsible disclosure practices.\n")
@@ -544,13 +549,16 @@ func (s *Scanner) showFinalStats() {
 	statsBuilder.WriteString(fmt.Sprintf("\n%s🏴‍☠️ Made with ❤️ by %s (%s) | %s 🏴‍☠️%s\n",
 		ColorBold, AUTHOR, TWITTER, GITHUB, ColorReset))
 	statsBuilder.WriteString(fmt.Sprintf("%s🎯 Happy Bug Hunting! 🎯%s\n\n", ColorBold, ColorReset))
-
-	// Write the stats to the detailed log file or stdout
-	s.logDetailMessage(statsBuilder.String())
-	if s.logDetailFile == nil && (s.Config.ShowBanner || s.Config.Verbose) { // if no log file, and banner/verbose is on, ensure it hits stdout
-		fmt.Print(statsBuilder.String())
-	} else if s.logDetailFile != nil && (!s.Config.ShowBanner && !s.Config.Verbose && s.Stats.URLsMatched > 0) {
-        // If not verbose and no banner, but matches found and log file exists, also print minimal summary to stdout
-        // This might be too noisy, consider if needed. For now, main prints file locations.
-    }
+	
+	finalStatsMessage := statsBuilder.String()
+	if s.logDetailFile != nil {
+		fmt.Fprint(s.logDetailFile, finalStatsMessage) 
+		if s.Config.ShowBanner || s.Config.Verbose {
+			fmt.Print(finalStatsMessage)
+		}
+	} else { 
+		if s.Config.ShowBanner || s.Config.Verbose {
+			fmt.Print(finalStatsMessage)
+		}
+	}
 }
