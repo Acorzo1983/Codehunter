@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # CodeHunter v2.5 - Linux Native Installer
 # Made with ❤️ by Albert.C @yz9yt
 # https://github.com/Acorzo1983/Codehunter
@@ -56,14 +55,14 @@ check_os() {
 
 check_deps() {
     echo -e "${C}[INFO]${NC} Checking dependencies..."
-    
+
     if ! command -v go &>/dev/null; then
         echo -e "${R}✗${NC} Go not found"
         echo -e "${Y}[FIX]${NC} Install Go: sudo apt install golang-go"
         exit 1
     fi
     echo -e "${G}✓${NC} Go $(go version | awk '{print $3}')"
-    
+
     if ! command -v git &>/dev/null; then
         echo -e "${R}✗${NC} Git not found"
         exit 1
@@ -73,7 +72,7 @@ check_deps() {
 
 verify_files() {
     echo -e "${C}[INFO]${NC} Verifying project..."
-    
+
     for file in "main.go" "go.mod" "patterns/secrets.txt"; do
         if [[ ! -f "$file" ]]; then
             echo -e "${R}✗${NC} Missing: $file"
@@ -85,33 +84,26 @@ verify_files() {
 
 build() {
     echo -e "${C}[BUILD]${NC} Building CodeHunter..."
-    
+
     [[ -f codehunter ]] && rm -f codehunter
-    
+
     go build -ldflags="-s -w" -o codehunter main.go
-    
-    if [[ $? -ne 0 ]]; then
-        echo -e "${R}✗${NC} Build failed"
-        exit 1
-    fi
-    
+
     chmod +x codehunter
     echo -e "${G}✓${NC} Binary built successfully"
 }
 
 install() {
     echo -e "${C}[INSTALL]${NC} Installing CodeHunter..."
-    
-    # Install binary
+
     if [[ -w "$INSTALL_DIR" ]]; then
         cp codehunter "$INSTALL_DIR/"
     else
         sudo cp codehunter "$INSTALL_DIR/"
     fi
-    
+
     echo -e "${G}✓${NC} Binary installed to $INSTALL_DIR"
-    
-    # Install patterns
+
     if [[ -w "/usr/share" ]]; then
         mkdir -p "$PATTERNS_DIR"
         cp -r patterns "$PATTERNS_DIR/"
@@ -119,13 +111,13 @@ install() {
         sudo mkdir -p "$PATTERNS_DIR"
         sudo cp -r patterns "$PATTERNS_DIR/"
     fi
-    
+
     echo -e "${G}✓${NC} Patterns installed to $PATTERNS_DIR"
 }
 
 verify() {
     echo -e "${C}[VERIFY]${NC} Testing installation..."
-    
+
     if command -v codehunter &>/dev/null; then
         echo -e "${G}✓${NC} Installation verified"
     else
@@ -136,33 +128,33 @@ verify() {
 
 success() {
     echo -e "\n${BOLD}${G}🎉 INSTALLATION COMPLETE! 🎉${NC}\n"
-    
+
     echo -e "${BOLD}${Y}📍 Installation Details:${NC}"
     echo -e "${G}Binary:${NC} $(which codehunter)"
     echo -e "${G}Patterns:${NC} $PATTERNS_DIR/patterns/"
-    
+
     echo -e "\n${BOLD}${C}🚀 Quick Start:${NC}"
     echo -e "${B}Basic scan:${NC}"
     echo "  codehunter -r secrets.txt -l urls.txt -o results.txt"
-    
+
     echo -e "\n${B}Bug Bounty workflow:${NC}"
     echo "  subfinder -d tesla.com | httpx | codehunter -r api_endpoints.txt"
     echo "  katana -u tesla.com | codehunter -r secrets.txt"
     echo "  waybackurls target.com | codehunter -r js_secrets.txt"
-    
+
     echo -e "\n${BOLD}${P}📋 Available Patterns:${NC}"
     echo "  • secrets.txt      - API keys, tokens"
     echo "  • api_endpoints.txt - REST APIs"
     echo "  • admin_panels.txt  - Admin areas"
     echo "  • js_secrets.txt   - JavaScript secrets"
     echo "  • files.txt        - Sensitive files"
-    
+
     echo -e "\n${BOLD}${G}🧪 Test Installation:${NC}"
     echo "  codehunter -r $PATTERNS_DIR/patterns/api_endpoints.txt -v"
-    
+
     echo -e "\n${BOLD}${P}🏴‍☠️ Made with ❤️ by Albert.C @yz9yt 🏴‍☠️${NC}"
     echo -e "${C}GitHub: https://github.com/Acorzo1983/Codehunter${NC}"
-    
+
     echo -e "\n${BOLD}${G}Happy Bug Hunting! 🎯${NC}"
 }
 
@@ -190,7 +182,7 @@ help() {
 
 main() {
     LOCAL_INSTALL=false
-    
+
     while [[ $# -gt 0 ]]; do
         case $1 in
             -h|--help)
@@ -209,15 +201,15 @@ main() {
                 ;;
         esac
     done
-    
+
     trap error_exit ERR
-    
+
     banner
     check_os
     check_deps
     verify_files
     build
-    
+
     if [[ "$LOCAL_INSTALL" == true ]]; then
         echo -e "${C}[INFO]${NC} Installing locally..."
         mkdir -p "$INSTALL_DIR" "$PATTERNS_DIR"
@@ -227,11 +219,11 @@ main() {
     else
         install
     fi
-    
+
     verify
     cleanup
     success
-    
+
     trap - ERR
 }
 
